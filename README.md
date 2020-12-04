@@ -10,5 +10,8 @@
 - cd ../meta-sensor/recipes-example
 - mkdir photopletismography
 - cd photopletismography
-- edit conf/local.conf and add IMAGE_INSTALL_append = " photopletismography"
+- edit conf/local.conf and add :
+	IMAGE_INSTALL_append = " photopletismography"
+	KERNEL_MODULE_AUTOLOAD += "photopletismography"
+
 - bitbake core-image-minimal
