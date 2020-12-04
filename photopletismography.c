@@ -20,25 +20,25 @@ ssize_t mymod_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	if (count > 1)
 		*buf++ = 'S';
 	
-	printk(KERN_INFO "[mymod] read (count=%d, offset=%d)\n", (int)count, (int)*f_pos );
+	printk(KERN_INFO "[TEST] read (count=%d, offset=%d)\n", (int)count, (int)*f_pos );
 	return count;
 }
 
 ssize_t mymod_write(struct file *filp, const char *buffer, size_t length, loff_t * offset)
 {
-	printk(KERN_INFO "[mymod] write (length=%d, offset=%d)\n", (int)length, (int)*offset );
+	printk(KERN_INFO "[TEST] write (length=%d, offset=%d)\n", (int)length, (int)*offset );
 	return length;
 }
 
 int mymod_open(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "[mymod] open" );
+	printk(KERN_INFO "[TEST] open" );
 	return 0;
 }
 
 int mymod_release(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "[mymod] release" );
+	printk(KERN_INFO "[TEST] release" );
 	return 0;
 }
 
@@ -75,5 +75,5 @@ static void __exit mymod_module_cleanup(void)
 
 module_init(mymod_module_init);
 module_exit(mymod_module_cleanup);
-MODULE_AUTHOR("Massimo Violante");
+MODULE_AUTHOR("Matteo Battilana");
 MODULE_LICENSE("GPL");
