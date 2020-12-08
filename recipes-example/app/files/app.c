@@ -14,17 +14,17 @@
  *     * Neither the name of the PG_ORGANIZATION nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY	THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS-IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -36,6 +36,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>		/* for setitimer */
+#include <unistd.h>		/* for pause */
+#include <signal.h>		/* for signal */
+
+#define INTERVAL 20		/* number of milliseconds to go off */
 
 #define q	11		    /* for 2^11 points */
 #define N	(1<<q)		/* N-point FFT, iFFT */
@@ -48,6 +53,10 @@ typedef struct{real Re; real Im;} complex;
 #endif
 #include <fcntl.h>
 
+struct timeval  tv1, tv2;
+  struct itimerval it_val;	/* for setting itimer */
+
+void sampleValue(void);
 void fft( complex *v, int n, complex *tmp )
 {
   if(n>1) {			/* otherwise, do nothing and return */
@@ -57,8 +66,8 @@ void fft( complex *v, int n, complex *tmp )
       ve[k] = v[2*k];
       vo[k] = v[2*k+1];
     }
-    fft( ve, n/2, v );		/* FFT on even-indexed elements of v[] */
-    fft( vo, n/2, v );		/* FFT on odd-indexed elements of v[] */
+    fft( ve, n/2, v );		/* FFT on even-idxed elements of v[] */
+    fft( vo, n/2, v );		/* FFT on odd-idxed elements of v[] */
     for(m=0; m<n/2; m++) {
       w.Re = cos(2*PI*m/(double)n);
       w.Im = -sin(2*PI*m/(double)n);
@@ -116,40 +125,73 @@ int bufferToInt(char * buffer, int count)
 	return value;
 }
 
-int main(int argc, char **argv)
-{
-	char *app_name = argv[0];
+
+void setupTimer(void){
+	  if (signal(SIGALRM, (void (*)(int)) sampleValue) == SIG_ERR) {
+    perror("Unable to catch SIGALRM");
+    exit(1);
+  }
+  it_val.it_value.tv_sec =     INTERVAL/1000;
+  it_val.it_value.tv_usec =    (INTERVAL*1000) % 1000000;
+  it_val.it_interval = it_val.it_value;
+  if (setitimer(ITIMER_REAL, &it_val, NULL) == -1) {
+    perror("error calling setitimer()");
+    exit(1);
+  }
+
+}
+
+int fd = -1;
+void openFile(void){
 	char *dev_name = "/dev/photopletismography_dev";
 
-	int fd = -1;
-	int c;
-	char buffer[100];
 	if ((fd = open(dev_name, O_RDWR)) < 0)
 	{
-		fprintf(stderr, "%s: unable to open %s: %s\n", app_name, dev_name, strerror(errno));
-		return 1;
+		fprintf(stderr, "unable to open %s: %s\n", dev_name, strerror(errno));
 	}
 
-	// READ
-	int read_count = read (fd, &buffer, 100);
-	printf( "read two: %d\n", bufferToInt(buffer, read_count));
+}
 
+int idx = 0;
+complex v[N];
+void sampleValue(void){
+  gettimeofday(&tv2, NULL);
+  printf("E = %f seconds\n",
+     (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+     (double) (tv2.tv_sec - tv1.tv_sec));
+  gettimeofday(&tv1, NULL);
+
+	char buffer[100];
+	int read_count = read (fd, &buffer, 100);
+
+	    v[idx].Re = bufferToInt(buffer, read_count);
+	    v[++idx].Im = 0;
+
+      printf("Read %d\n", idx);
+	if (idx == N){
+		// computer ft
+		complex c[N];
+		memcpy(&c, &v, sizeof(v));
+		int ddd = computeFft(c);
+		printf("######## %d\n",ddd);
+		printf("2048\n");
+		idx = 0;
+	}
+}
+
+int main(int argc, char **argv)
+{
+  gettimeofday(&tv1, NULL);
+	openFile();
+	setupTimer();
+	printf("Started 1\n");
+
+  while (1)
+    pause();
 
 
 	// WRITE
-	//const char buffer2[2];
-	//write( fd, &buffer2, 1);
 
-	complex v[N];
-	  for(int k=0; k<N; k++) {
-		  int read_count = read (fd, &buffer, 100);
-	    v[k].Re = bufferToInt(buffer, read_count);
-	    v[k].Im = 0;
-
-	  }
-	  int ret = computeFft(v);
-	  printf("RESSSS -> %d\n", ret);
-		// CLOSE
 		close( fd );
 
 	return 0;

@@ -11,6 +11,7 @@
 /* function prototype */
 void DoStuff(void);
 struct timeval  tv1, tv2;
+  struct itimerval it_val;	/* for setting itimer */
 int main(int argc, char *argv[]) {
 
 gettimeofday(&tv1, NULL);
