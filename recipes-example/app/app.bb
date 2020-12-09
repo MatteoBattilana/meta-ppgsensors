@@ -7,13 +7,12 @@ SRC_URI = "file://app.c"
 S = "${WORKDIR}"
 
 do_compile() {
-        set CFLAGS -g
-        ${CC} ${CFLAGS} -lm app.c ${LDFLAGS} -o app
-        unset CFLAGS
+	set CFLAGS -g
+	${CC} ${CFLAGS} -lm -pthread app.c ${LDFLAGS} -o app
+	unset CFLAGS
 }
 
 do_install() {
-        install -d ${D}${bindir}
-        install -m 0755 app ${D}${bindir}
+	install -d ${D}${bindir}
+	install -m 0755 app ${D}${bindir}
 }
-

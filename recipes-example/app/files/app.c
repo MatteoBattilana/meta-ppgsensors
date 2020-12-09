@@ -36,11 +36,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/time.h>		/* for setitimer */
+#include <sys/time.h>	/* for setitimer */
 #include <unistd.h>		/* for pause */
 #include <signal.h>		/* for signal */
+#include <pthread.h>
 
-#define INTERVAL 20		/* number of milliseconds to go off */
+#define INTERVAL 20		/* number of milliseconds to trigger the signal */
 
 #define q	11		    /* for 2^11 points */
 #define N	(1<<q)		/* N-point FFT, iFFT */
@@ -53,6 +54,9 @@ typedef struct{real Re; real Im;} complex;
 #endif
 #include <fcntl.h>
 
+pthread_mutex_t full = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t empty = PTHREAD_MUTEX_INITIALIZER;
+int pipefd[2];
 struct timeval  tv1, tv2;
   struct itimerval it_val;	/* for setting itimer */
 
@@ -107,9 +111,34 @@ int computeFft(complex v[N]){
 	    if( abs[k] > abs[m] )
 		m = k;
 	  }
-
 	// Print the heart beat in bpm
 	  return (m)*60*50/2048;
+}
+
+int idx = 0;
+static complex v[N];
+void* foo(void* p){
+	while(1){
+		int n;
+		read(pipefd[0], &n, sizeof(n));
+	      printf("Read %d %d\n", idx, n);
+		v[idx].Re = n;
+		v[idx++].Im = 0;
+		if (idx == N){
+			// computer ft
+			int res = computeFft(v);
+			  printf( "\n\n\n%d bpm\n\n\n", res );
+			idx = 0;
+		//	matrixIndex = (matrixIndex + 1)%2;
+		}
+
+	}
+    return NULL;
+}
+
+
+void executeThread(complex v[N]){
+	pthread_mutex_unlock(&full);
 }
 
 int bufferToInt(char * buffer, int count)
@@ -152,8 +181,6 @@ void openFile(void){
 
 }
 
-int idx = 0;
-complex v[N];
 void sampleValue(void){
   gettimeofday(&tv2, NULL);
   printf("E = %f seconds\n",
@@ -161,30 +188,33 @@ void sampleValue(void){
      (double) (tv2.tv_sec - tv1.tv_sec));
   gettimeofday(&tv1, NULL);
 
-	char buffer[100];
-	int read_count = read (fd, &buffer, 100);
-
-	    v[idx].Re = bufferToInt(buffer, read_count);
-	    v[++idx].Im = 0;
+	char buffer[2];
+	int read_count = read (fd, &buffer, 2);
+	int value = bufferToInt(buffer, read_count);
+	write(pipefd[1], &value, sizeof(value));
+	 	/*v[idx][matrixIndex].Re = bufferToInt(buffer, read_count);
+	    v[++idx][matrixIndex].Im = 0;
 
       printf("Read %d\n", idx);
 	if (idx == N){
 		// computer ft
-		complex c[N];
-		memcpy(&c, &v, sizeof(v));
-		int ddd = computeFft(c);
-		printf("######## %d\n",ddd);
-		printf("2048\n");
-		idx = 0;
-	}
+		//executeThread(c);
+		idx = idx -1;
+	//	matrixIndex = (matrixIndex + 1)%2;
+	}*/
 }
 
 int main(int argc, char **argv)
 {
+	pipe(pipefd);
+	pthread_mutex_lock(&full);
   gettimeofday(&tv1, NULL);
+  pthread_t thread_id;
+  pthread_create(&thread_id, NULL, foo, NULL);
+
 	openFile();
 	setupTimer();
-	printf("Started 1\n");
+	printf("Started 2\n");
 
   while (1)
     pause();
