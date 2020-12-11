@@ -49,7 +49,7 @@
 #define INTERVAL 20		/* number of milliseconds to trigger the signal */
 #define q	11		    /* for 2^11 points */
 #define N	(1<<q)		/* N-point FFT, iFFT */
-#define DEVNAME "/dev/photopletismography_dev"
+#define DEVNAME "/dev/ppgmod_dev"
 
 typedef float real;
 typedef struct {
@@ -59,8 +59,7 @@ typedef struct {
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static int pipefd[2];
-struct timeval tv1,
-tv2;
+struct timeval tv1, tv2;
 struct itimerval it_val; /* for setting itimer */
 static int idx = 0;
 static complex v[N];
@@ -104,11 +103,11 @@ void fft(complex *v, int n, complex *tmp) {
 }
 
 void sampleValue(void) {
-	/*gettimeofday(&tv2, NULL);
+	gettimeofday(&tv2, NULL);
 	printf("E = %f seconds\n",
 			(double) (tv2.tv_usec - tv1.tv_usec) / 1000000
 					+ (double) (tv2.tv_sec - tv1.tv_sec));
-	gettimeofday(&tv1, NULL);*/
+	gettimeofday(&tv1, NULL);
 
 	char buffer[2];
 	int read_count = read(fd, &buffer, 2);
@@ -155,6 +154,7 @@ void* valueHandlerThread(void* p) {
 			fprintf(stderr, "[ERROR] Unable to read from thread pipe: %s\n", strerror(errno));
 			exit(EXIT_FAILURE);
 		} else {
+			printf("[INFO] Read item at: %d\n", idx);
 			v[idx].Re = n;
 			v[idx++].Im = 0;
 			if (idx == N) {
@@ -226,3 +226,4 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
+

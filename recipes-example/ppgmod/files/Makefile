@@ -1,6 +1,6 @@
 CFLAGS = -g
 
-obj-m := photopletismography.o
+obj-m := ppgmod.o
 	SRC := $(shell pwd)
 
 all:

@@ -7,7 +7,7 @@ COMPATIBLE_MACHINE = "(qemuarm|raspberrypi2)"
 S = "${WORKDIR}"
 
 SRC_URI = "file://Makefile \
-		file://photopletismography.c \
+		file://ppgmod.c \
 		file://data.h \
 		"
 
