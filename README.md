@@ -29,7 +29,7 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
       /opt/poky/meta-openembedded/meta-networking \
       /opt/poky/meta-openembedded/meta-python \
       /opt/poky/meta-raspberrypi \
-      /opt/poky/meta-sensor \
+      /opt/poky/meta-example \
       "
     ```
 * You should now go back in the poky main folder with `cd ..` and setup the build environment with the `source oe-init-build-env build_rpi2` command
