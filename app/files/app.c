@@ -59,22 +59,13 @@ typedef struct {
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static int pipefd[2];
-struct timeval tv1, tv2;
+struct timeval tv1,
+tv2;
 struct itimerval it_val; /* for setting itimer */
 static int idx = 0;
 static complex v[N];
 static int fd = -1;
 pthread_t thread_id;
-
-int bufferToInt(char * buffer, int count) {
-	int value = 0;
-	for (int i = 0; i < count; i++) {
-		int v = (int) buffer[i];
-		int h = v << (8 * i);
-		value += h;
-	}
-	return value;
-}
 
 void fft(complex *v, int n, complex *tmp) {
 	if (n > 1) { /* otherwise, do nothing and return */
@@ -103,18 +94,20 @@ void fft(complex *v, int n, complex *tmp) {
 }
 
 void sampleValue(void) {
-	gettimeofday(&tv2, NULL);
+	/*gettimeofday(&tv2, NULL);
 	printf("E = %f seconds\n",
 			(double) (tv2.tv_usec - tv1.tv_usec) / 1000000
 					+ (double) (tv2.tv_sec - tv1.tv_sec));
-	gettimeofday(&tv1, NULL);
+	gettimeofday(&tv1, NULL);*/
 
-	char buffer[2];
-	int read_count = read(fd, &buffer, 2);
-	int value = bufferToInt(buffer, read_count);
-	if (write(pipefd[1], &value, sizeof(value)) == -1) {
-		fprintf(stderr, "[ERROR] Unable to write to thread pipe: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
+
+	int value;
+	int read_count = read(fd, &value, 4);
+	if(read_count > 0){
+		if (write(pipefd[1], &value, sizeof(value)) == -1) {
+			fprintf(stderr, "[ERROR] Unable to write to thread pipe: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 	}
 }
 
@@ -154,7 +147,6 @@ void* valueHandlerThread(void* p) {
 			fprintf(stderr, "[ERROR] Unable to read from thread pipe: %s\n", strerror(errno));
 			exit(EXIT_FAILURE);
 		} else {
-			printf("[INFO] Read item at: %d\n", idx);
 			v[idx].Re = n;
 			v[idx++].Im = 0;
 			if (idx == N) {
@@ -184,7 +176,7 @@ void ctrlHandler(int sig) {
 
 int main(int argc, char **argv) {
 	printf("[INFO] Starting reading\n");
-	gettimeofday(&tv1, NULL);
+	//gettimeofday(&tv1, NULL);
 
 	// Setup Ctrl-C handler
 	signal(SIGINT, ctrlHandler);

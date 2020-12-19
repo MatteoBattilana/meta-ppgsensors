@@ -8,6 +8,7 @@
 #include <linux/cdev.h>
 #include <asm/uaccess.h>
 #include <linux/uaccess.h> 
+#include <linux/mutex.h>
 #include "data.h"
 
 static dev_t ppgmod_dev;
@@ -16,23 +17,18 @@ struct class *myclass = NULL;
 static char buffer[64];
 
 static int index = 0;
+static DEFINE_MUTEX(cache_lock);
 
 ssize_t ppgmod_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
-	int original_value = ppg[++index];
-	int value = original_value; 
+        mutex_lock(&cache_lock);
+	int value = ppg[index++];
 	index = index % (sizeof(ppg) / sizeof(ppg[0]));
+	copy_to_user(buf, &value, 4);
 	
-	int counter = 0;
-	while(value != 0 && counter++ <= count){
-		int vv = value & 0xFF;
-		copy_to_user(buf, &vv, 1);
-		value = value >> 8; 
-	}
-	copy_to_user(buf, &original_value, 4);
-	
-	printk(KERN_INFO "[ppgmod] read (value = %d, buf size = %d)\n", original_value, counter);
-	return counter;
+	printk(KERN_INFO "[ppgmod] read (value = %d, buf size = %d)\n", value, 4);
+        mutex_unlock(&cache_lock);
+	return 4;
 }
 
 struct file_operations ppgmod_fops = {

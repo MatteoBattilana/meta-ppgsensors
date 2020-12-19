@@ -39,8 +39,7 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
  
 The app can now be tested using the `app` command from the console of the host.
 ## Driver - pppgmod.c
-The driver has been implemented as a Linux kernel module that is enabled at the startup. The value, that comes from a  photopletismography (PPG), is simulated. At every read, the module returns a value from a predefined set, `data.h`.
-Since this is a character-based driver, the application car read only chars via a buffer; so the value is split among multiple characters, using a shift right of 8 positions. The first char will contain the 8 less significant bits of the binary representation of the simulated value.
+The driver has been implemented as a Linux kernel module that is enabled at the startup. The value, that comes from a  photopletismography (PPG), is simulated. At every read, the module returns a value from a predefined set, `data.h`. The `copy_to_user` function has been used in order to copy the integer sensor value from the kernel space to the user space.
 
 
 ## App - app

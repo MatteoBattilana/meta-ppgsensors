@@ -10,4 +10,3 @@ SRC_URI = "file://Makefile \
 		file://ppgmod.c \
 		file://data.h \
 		"
-
