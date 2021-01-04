@@ -57,7 +57,6 @@ typedef struct {
 	real Im;
 } complex;
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static int pipefd[2];
 struct timeval tv1,
 tv2;
@@ -141,7 +140,6 @@ int computeFft(complex v[N]) {
 
 void* valueHandlerThread(void* p) {
 	while (1) {
-		pthread_mutex_lock(&lock);
 		int n;
 		if (read(pipefd[0], &n, sizeof(n)) == -1) {
 			fprintf(stderr, "[ERROR] Unable to read from thread pipe: %s\n", strerror(errno));
@@ -155,7 +153,6 @@ void* valueHandlerThread(void* p) {
 				printf("[INFO] BPM: %d\n", res);
 				idx = 0;
 			}
-			pthread_mutex_unlock(&lock);
 		}
 	}
 	return NULL;
@@ -199,7 +196,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	// Start alarm every 20 ms
+	// Schedule alarm every 20 ms
 	if (signal(SIGALRM, (void (*)(int)) sampleValue) == SIG_ERR) {
 		fprintf(stderr, "[ERROR] Unable to catch SIGALRM: %s", strerror(errno));
 		exit(EXIT_FAILURE);

@@ -45,6 +45,7 @@ rm -rf OSESAssignment2
 The app can now be tested using the `app` command from the console of the host.
 ## Driver - pppgmod.c
 The driver has been implemented as a Linux kernel module that is enabled at the startup. The value, that comes from a  photopletismography (PPG), is simulated. At every read, the module returns a value from a predefined set, `data.h`. The `copy_to_user` function has been used in order to copy the integer sensor value from the kernel space to the user space.
+Since multiple instance of the app can read the driver, the access to the structure has been managed via a mutex lock.
 
 
 ## App - app
