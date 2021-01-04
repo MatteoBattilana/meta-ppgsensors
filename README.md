@@ -3,7 +3,7 @@ The goal of this assignment is to implement a heart rate monitor, that is compos
 * A Linux character-based driver (cDD) used to access a "virtual" Photopletismography (PPG) sensor
 * A Linux user application (APP)
 
-For this project I used a Raspberry PI 2 B+.
+For this project I used a Raspberry Pi 2 B.
 
 
 ## Steps to test the two recipes
@@ -23,7 +23,7 @@ rm -rf OSESAssignment2
     IMAGE_INSTALL_append = " ppgmod"
     KERNEL_MODULE_AUTOLOAD += "ppgmod"
     ```
-* You have now to add the layer `meta-example` to the Linux distribution, add the following lines to the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry PI 2 B+:
+* You have now to add the layer `meta-example` to the Linux distribution, add the following lines to the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry Pi 2 B:
     ```
     BBLAYERS ?= " \
       /opt/poky/meta \
@@ -62,7 +62,7 @@ The first problem to solve was to reduce the memory utilization as much as possi
 Since the system has to achieve a sampling frequency of 50Hz, the interval between two reads is 20 ms. I decided to use an alarm with the `SIGALRM` signal that is triggered every 20 ms.
 Even if the time for writing to the pipeline can be neglected, using an alarm ensures precision on a call method; with a delay I should have to remove from the following sleep the time needed for the read and the write to the pipe. This could have been simply solved by performing a check on the current time: if the previous execution was done more than 20 ms ago, a new one is performed. This solution keeps the CPU at an high usage.
 
-Using an almar, simplifies the time management and the usage of the CPU is very low. On a Raspberry PI 2 B+, the CPU usage is 0.1%.
+Using an almar, simplifies the time management and the usage of the CPU is very low. On a Raspberry Pi 2 B, the CPU usage is 0.1%.
 
 
 
