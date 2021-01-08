@@ -23,7 +23,7 @@ rm -rf OSESAssignment2
     IMAGE_INSTALL_append = " ppgmod"
     KERNEL_MODULE_AUTOLOAD += "ppgmod"
     ```
-* You have now to add the layer `meta-example` to the Linux distribution, add it to the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry Pi 2 B:
+* If not already present, you have to add the layer `meta-example` to the Linux distribution in the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry Pi 2 B:
     ```
     BBLAYERS ?= " \
       /opt/poky/meta \
