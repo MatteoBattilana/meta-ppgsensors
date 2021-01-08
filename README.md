@@ -37,13 +37,17 @@ rm -rf OSESAssignment2
       /opt/poky/meta-example \
       "
     ```
-* You should now go back in the poky main folder with `cd ..` and setup the build environment with the `source oe-init-build-env build_rpi2` command
-* `source oe-init-build-env build_rpi2` for setup the environment
+* You should now go back in the poky main folder and setup the build environment
+```
+cd ..
+source oe-init-build-env build_rpi2
+```
 * At this point you can build the Linux distribution with `bitbake core-image-full-cmdline`
 
  
-The app can now be tested using the `app` command from the console of the host.
-## Driver - pppgmod.c
+The built image can be flashed in a SDCard and the app can be tested using the `app` command from the terminal of the Raspberry.
+
+## Driver - pppgmod
 The driver has been implemented as a Linux kernel module that is enabled at the startup. The value, that comes from a  photopletismography (PPG), is simulated. At every read, the module returns a value from a predefined set, `data.h`. The `copy_to_user` function has been used in order to copy the integer sensor value from the kernel space to the user space.
 Since multiple instance of the app can read the driver, the access to the structure has been managed via a mutex lock.
 
