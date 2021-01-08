@@ -16,7 +16,7 @@ git clone https://github.com/MatteoBattilana/OSESAssignment2.git
 cp -r OSESAssignment2/app OSESAssignment2/ppgmod .
 rm -rf OSESAssignment2
 ```
-* Move to the build folder, with the command `cd ../build_rpi2`
+* Move to the build folder, with the command `cd ../../build_rpi2`
 * At this point you need to add the application and the kernel module to the configuration of the Linux distribution; you have to add these lines at the end of the `conf/local.conf` file:
     ```
     IMAGE_INSTALL_append = " app"
