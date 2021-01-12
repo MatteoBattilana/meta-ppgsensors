@@ -7,14 +7,11 @@ For this project I used a Raspberry Pi 2 B.
 
 
 ## Steps to test the two recipes
-Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so you have a container folder for the build into the poky directory called `build_rpi2` and a layer called `meta-example`, you have to perform the following steps:
+Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so you have a container folder for the build into the poky directory called `build_rpi2` and you don't already have a layer called `meta-ppgsensor`, you have to perform the following steps:
 
-* Clone the repository and copy only the necessary folders
+* Clone the repository into the poky main folder
     ```
-    cd meta-example/recipes-example/
-    git clone https://github.com/MatteoBattilana/OSESAssignment2.git
-    cp -r OSESAssignment2/app OSESAssignment2/ppgmod .
-    rm -rf OSESAssignment2
+    git clone https://github.com/MatteoBattilana/meta-ppgsensor.git
     ```
 * Move to the build folder, with the command `cd ../../build_rpi2`
 * At this point you need to add the application and the kernel module to the configuration of the Linux distribution; you have to add these lines at the end of the `conf/local.conf` file:
@@ -23,7 +20,7 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
     IMAGE_INSTALL_append = " ppgmod"
     KERNEL_MODULE_AUTOLOAD += "ppgmod"
     ```
-* If not already present, you have to add the layer `meta-example` to the Linux distribution in the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry Pi 2 B:
+* If not already present, you have to add the layer `meta-ppgsensor` to the Linux distribution in the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry Pi 2 B:
     ```
     BBLAYERS ?= " \
       /opt/poky/meta \
@@ -34,7 +31,7 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
       /opt/poky/meta-openembedded/meta-networking \
       /opt/poky/meta-openembedded/meta-python \
       /opt/poky/meta-raspberrypi \
-      /opt/poky/meta-example \
+      /opt/poky/meta-ppgsensor \
       "
     ```
 * You should now go back in the poky main folder and setup the build environment
