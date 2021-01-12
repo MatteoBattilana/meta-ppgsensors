@@ -13,7 +13,10 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
     ```
     git clone https://github.com/MatteoBattilana/meta-ppgsensor.git
     ```
-* Move to the build folder, with the command `cd ../../build_rpi2`
+* You should now setup the build environment for `build_rpi2`
+    ```
+    source oe-init-build-env build_rpi2
+    ```
 * At this point you need to add the application and the kernel module to the configuration of the Linux distribution; you have to add these lines at the end of the `conf/local.conf` file:
     ```
     IMAGE_INSTALL_append = " app"
@@ -33,11 +36,6 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
       /opt/poky/meta-raspberrypi \
       /opt/poky/meta-ppgsensor \
       "
-    ```
-* You should now go back in the poky main folder and setup the build environment
-    ```
-    cd ..
-    source oe-init-build-env build_rpi2
     ```
 * At this point you can build the Linux distribution with `bitbake core-image-full-cmdline`
 
