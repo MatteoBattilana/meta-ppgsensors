@@ -7,11 +7,11 @@ For this project I used a Raspberry Pi 2 B.
 
 
 ## Steps to test the two recipes
-Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so you have a container folder for the build into the poky directory called `build_rpi2` and you don't already have a layer called `meta-ppgsensor`, you have to perform the following steps:
+Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so you have a container folder for the build into the poky directory called `build_rpi2` and you don't already have a layer called `meta-ppgsensors`, you have to perform the following steps:
 
 * Clone the repository into the poky main folder
     ```
-    git clone https://github.com/MatteoBattilana/meta-ppgsensor.git
+    git clone https://github.com/MatteoBattilana/meta-ppgsensors.git
     ```
 * You should now setup the build environment for `build_rpi2`
     ```
@@ -23,7 +23,7 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
     IMAGE_INSTALL_append = " ppgmod"
     KERNEL_MODULE_AUTOLOAD += "ppgmod"
     ```
-* If not already present, you have to add the layer `meta-ppgsensor` to the Linux distribution in the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry Pi 2 B:
+* If not already present, you have to add the layer `meta-ppgsensors` to the Linux distribution in the `conf/bblayers.conf` file under the `BBLAYERS` parameter. The following section, shows an example for Raspberry Pi 2 B:
     ```
     BBLAYERS ?= " \
       /opt/poky/meta \
@@ -34,7 +34,7 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
       /opt/poky/meta-openembedded/meta-networking \
       /opt/poky/meta-openembedded/meta-python \
       /opt/poky/meta-raspberrypi \
-      /opt/poky/meta-ppgsensor \
+      /opt/poky/meta-ppgsensors \
       "
     ```
 * At this point you can build the Linux distribution with the following command
