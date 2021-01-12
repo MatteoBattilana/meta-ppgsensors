@@ -37,8 +37,10 @@ Assuming you have an already build a Linux distribution for a Raspberry Pi 2, so
       /opt/poky/meta-ppgsensor \
       "
     ```
-* At this point you can build the Linux distribution with `bitbake core-image-full-cmdline`
-
+* At this point you can build the Linux distribution with the following command
+    ```
+    bitbake core-image-full-cmdline
+    ```
  
 The built image can be flashed in a SDCard and the app can be tested using the `app` command from the terminal on the Raspberry.
 
